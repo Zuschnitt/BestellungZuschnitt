@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Bestellliste Holzplatten</title>
 
+<!-- Favicon -->
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 
 <style>
@@ -13,12 +14,14 @@ body {
   background: #f4f4f4;
 }
 
+/* HEADER */
 header {
   background: #e2001a;
   color: white;
   padding: 15px 20px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 header .left {
@@ -36,17 +39,20 @@ header h1 {
   font-size: 22px;
 }
 
+/* BUTTONS */
 .controls {
-  padding: 15px;
-  text-align: center;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 button {
   background: #e2001a;
   color: white;
   border: none;
-  padding: 10px 25px;
-  font-size: 16px;
+  padding: 10px 20px;
+  font-size: 14px;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -55,6 +61,7 @@ button:hover {
   background: #b80015;
 }
 
+/* TABLE */
 .table-container {
   padding: 10px 20px;
 }
@@ -91,9 +98,15 @@ input {
 
 /* PRINT */
 @media print {
-  header,
+
+  /* ✅ Header bleibt sichtbar */
+  
   .controls {
-    display: none;
+    display: none; /* Buttons verschwinden */
+  }
+
+  body {
+    background: white;
   }
 
   table {
@@ -122,6 +135,7 @@ input {
 </header>
 
 <div class="controls">
+  <button onclick="resetListe()">🔄 Reset</button>
   <button onclick="window.print()">🖨️ Drucken</button>
 </div>
 
@@ -142,10 +156,10 @@ input {
 </div>
 
 <script>
-fetch('./artikel_liste.json')   // ✅ WICHTIG: ./ davor!
+fetch('./artikel_liste.json')
   .then(response => {
     if (!response.ok) {
-      throw new Error("HTTP Fehler: " + response.status);
+      throw new Error("HTTP Fehler " + response.status);
     }
     return response.json();
   })
@@ -181,9 +195,17 @@ fetch('./artikel_liste.json')   // ✅ WICHTIG: ./ davor!
   })
   .catch(error => {
     console.error("FEHLER:", error);
-    document.body.innerHTML +=
-      "<p style='color:red;text-align:center;'>Fehler beim Laden der Artikeldaten!</p>";
+    document.body.innerHTML += "<p style='color:red;text-align:center;'>Fehler beim Laden der Artikeldaten!</p>";
   });
+
+/* ✅ RESET FUNKTION */
+function resetListe() {
+  const inputs = document.querySelectorAll("tbody input");
+  const outputs = document.querySelectorAll(".qm");
+
+  inputs.forEach(input => input.value = 0);
+  outputs.forEach(out => out.textContent = "0,00 qm");
+}
 </script>
 
 </body>
