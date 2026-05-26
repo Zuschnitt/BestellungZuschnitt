@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Bestellliste Holzplatten</title>
 
-<!-- Favicon -->
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 
 <style>
@@ -14,14 +13,12 @@ body {
   background: #f4f4f4;
 }
 
-/* HEADER */
 header {
   background: #e2001a;
   color: white;
   padding: 15px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
 header .left {
@@ -39,7 +36,6 @@ header h1 {
   font-size: 22px;
 }
 
-/* BUTTON */
 .controls {
   padding: 15px;
   text-align: center;
@@ -59,7 +55,6 @@ button:hover {
   background: #b80015;
 }
 
-/* TABLE */
 .table-container {
   padding: 10px 20px;
 }
@@ -81,7 +76,6 @@ th {
   color: white;
   position: sticky;
   top: 0;
-  z-index: 1;
 }
 
 input {
@@ -100,10 +94,6 @@ input {
   header,
   .controls {
     display: none;
-  }
-
-  body {
-    background: white;
   }
 
   table {
@@ -152,13 +142,18 @@ input {
 </div>
 
 <script>
-fetch('artikel_liste.json')
-  .then(res => res.json())
+fetch('./artikel_liste.json')   // ✅ WICHTIG: ./ davor!
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("HTTP Fehler: " + response.status);
+    }
+    return response.json();
+  })
   .then(data => {
     const tbody = document.querySelector("#tabelle tbody");
 
     Object.entries(data).forEach(([nummer, artikel]) => {
-      const qm = parseFloat(String(artikel.qm).replace(",", "."));
+      const qm = parseFloat(artikel.qm);
 
       const tr = document.createElement("tr");
 
@@ -178,16 +173,16 @@ fetch('artikel_liste.json')
         const menge = parseFloat(input.value) || 0;
         const gesamt = menge * qm;
 
-        output.textContent =
-          gesamt.toFixed(2).replace(".", ",") + " qm";
+        output.textContent = gesamt.toFixed(2).replace(".", ",") + " qm";
       });
 
       tbody.appendChild(tr);
     });
   })
   .catch(error => {
-    console.error("Fehler beim Laden:", error);
-    document.body.innerHTML += "<p style='color:red;text-align:center;'>Fehler beim Laden der Artikeldaten!</p>";
+    console.error("FEHLER:", error);
+    document.body.innerHTML +=
+      "<p style='color:red;text-align:center;'>Fehler beim Laden der Artikeldaten!</p>";
   });
 </script>
 
