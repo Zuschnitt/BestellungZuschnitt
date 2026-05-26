@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Bestellliste Holzplatten</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f4f4;
+}
+
+/* HEADER */
+header {
+  background: #e2001a;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header .left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+header img {
+  height: 45px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+/* BUTTON */
+.controls {
+  padding: 15px;
+  text-align: center;
+}
+
+button {
+  background: #e2001a;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #b80015;
+}
+
+/* TABLE */
+.table-container {
+  padding: 10px 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+th {
+  background: #333;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+input {
+  width: 70px;
+  padding: 5px;
+  text-align: center;
+}
+
+.qm {
+  font-weight: bold;
+  color: #2a7a2a;
+}
+
+/* PRINT */
+@media print {
+  header,
+  .controls {
+    display: none;
+  }
+
+  body {
+    background: white;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 6px;
+  }
+
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="left">
+    <img src="toom-logo.jpg" alt="Toom Logo">
+    <h1>Bestellliste Holzplatten</h1>
+  </div>
+</header>
+
+<div class="controls">
+  <button onclick="window.print()">🖨️ Drucken</button>
+</div>
+
+<div class="table-container">
+  <table id="tabelle">
+    <thead>
+      <tr>
+        <th>Artikelnummer</th>
+        <th>Bezeichnung</th>
+        <th>Stärke</th>
+        <th>qm / Platte</th>
+        <th>Menge</th>
+        <th>Bestellmenge</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+fetch('artikel_liste.json')
+  .then(res => res.json())
+  .then(data => {
+    const tbody = document.querySelector("#tabelle tbody");
+
+    Object.entries(data).forEach(([nummer, artikel]) => {
+      const qm = parseFloat(String(artikel.qm).replace(",", "."));
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${nummer}</td>
+        <td>${artikel.bezeichnung}</td>
+        <td>${artikel.staerke} mm</td>
+        <td>${qm.toFixed(3).replace(".", ",")}</td>
+        <td><input type="number" min="0" value="0"></td>
+        <td class="qm">0,00 qm</td>
+      `;
+
+      const input = tr.querySelector("input");
+      const output = tr.querySelector(".qm");
+
+      input.addEventListener("input", () => {
+        const menge = parseFloat(input.value) || 0;
+        const gesamt = menge * qm;
+
+        output.textContent =
+          gesamt.toFixed(2).replace(".", ",") + " qm";
+      });
+
+      tbody.appendChild(tr);
+    });
+  })
+  .catch(error => {
+    console.error("Fehler beim Laden:", error);
+    document.body.innerHTML += "<p style='color:red;text-align:center;'>Fehler beim Laden der Artikeldaten!</p>";
+  });
+</script>
+
+</body>
+</html>
